@@ -1,16 +1,16 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { Layout } from './components/layout'
-import { Button } from "@/components/ui/button"
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Layout } from "./layout";
+import Link from "next/link";
 
 export default function LandingPage() {
   return (
     <Layout>
-      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 flex justify-center">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
             <Image
-              src="/placeholder.svg?height=400&width=600"
+              src="/friends.avif"
               width={600}
               height={400}
               alt="Hero"
@@ -22,11 +22,15 @@ export default function LandingPage() {
                   Connect, Share, and Thrive
                 </h1>
                 <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Join SocialConnect and experience a new way of connecting with friends, family, and like-minded individuals from around the world.
+                  Join SocialConnect and experience a new way of connecting with
+                  friends, family, and like-minded individuals from around the
+                  world.
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Button size="lg">Get Started</Button>
+                <Link href="/sign-in">
+                  <Button size="lg">Get Started</Button>
+                </Link>
                 <Button size="lg" variant="outline">
                   Learn More
                 </Button>
@@ -35,8 +39,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
-        <div className="container px-4 md:px-6">
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800 flex justify-center">
+        <div className="container px-4 md:px-6 self-center">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
             Why Choose SocialConnect?
           </h2>
@@ -114,7 +118,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      <section className="w-full py-12 md:py-24 lg:py-32">
+      <section className="w-full py-12 md:py-24 lg:py-32 flex justify-center">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -122,7 +126,8 @@ export default function LandingPage() {
                 Join SocialConnect Today
               </h2>
               <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Start connecting with millions of users worldwide. Share your stories, make new friends, and discover exciting content.
+                Start connecting with millions of users worldwide. Share your
+                stories, make new friends, and discover exciting content.
               </p>
             </div>
             <div className="w-full max-w-sm space-y-2">
@@ -145,6 +150,5 @@ export default function LandingPage() {
         </div>
       </section>
     </Layout>
-  )
+  );
 }
-

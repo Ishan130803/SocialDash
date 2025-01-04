@@ -1,8 +1,8 @@
-import { Header } from "./components/header"
-import { Sidebar } from "./components/sidebar"
-import { StatsCard } from "./components/stats-card"
-import { RecentPosts } from "./components/recent-posts"
-import { TrendingTopics } from "./components/trending-topics"
+import { Header } from "./header"
+import { Sidebar } from "./sidebar"
+import { StatsCard } from "./stats-card"
+import { RecentPosts } from "./recent-posts"
+import { TrendingTopics } from "./trending-topics"
 import { Users, ThumbsUp, MessageSquare } from 'lucide-react'
 
 export default function Dashboard() {
