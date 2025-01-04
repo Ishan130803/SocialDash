@@ -1,6 +1,7 @@
-import { Bell, MessageSquare, User } from 'lucide-react'
+import { Bell, MessageSquare } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { UserButton } from '@/features/auth/components/user-button'
 
 export function Header() {
   return (
@@ -18,10 +19,10 @@ export function Header() {
           <MessageSquare className="h-5 w-5" />
           <span className="sr-only">Messages</span>
         </Button>
-        <Button variant="ghost" size="icon">
-          <User className="h-5 w-5" />
+        <div>
+          <UserButton  />
           <span className="sr-only">Profile</span>
-        </Button>
+        </div>
       </div>
     </header>
   )
