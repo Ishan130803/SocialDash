@@ -4,12 +4,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "../../../components/ui/avatar";
-import { CreatedUser } from "@/models/user-model";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { bulkGetBasicUserData, getUserData } from "@/features/api/actions";
-import mongoose from "mongoose";
-import { Delete, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 const friendsData = [
   {

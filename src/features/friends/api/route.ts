@@ -26,7 +26,7 @@ const sessionMiddleware = createMiddleware<MiddlewareType>(async (c, next) => {
 });
 
 const app = new Hono()
-  .post("/accept-friend-request", async (c) => {
+  .post("/accept-friend-request",sessionMiddleware, async (c) => {
     const user_id = c.get("user_id");
     const friend_id = c.req.param("friend_id");
     if (!friend_id) {

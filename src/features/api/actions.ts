@@ -1,7 +1,5 @@
-import { authOptions } from "@/lib/auth";
 import { CreatedUser } from "@/models/user-model";
 import mongoose from "mongoose";
-import { getServerSession } from "next-auth";
 
 export async function acceptFriendRequest(userId: string, friendId: string) {
   try {
@@ -229,6 +227,4 @@ export async function getAllUsers() {
   } catch (error) {
     return { message: (error as Error).message, status: 500 };
   }
-}
-
 }
