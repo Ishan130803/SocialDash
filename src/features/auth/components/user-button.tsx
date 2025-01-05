@@ -1,7 +1,7 @@
 "use client";
 
 import { DottedSeparator } from "@/components/DottedSeparator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,17 +17,18 @@ function UserButton() {
   const avatarFallback = session?.data?.user.name?.charAt(0) || "U";
   const name = session.data?.user.name || "User";
   const email = session.data?.user.email || "user@mail.com";
-  const router = useRouter()
+  const router = useRouter();
 
   const logoutHandler = () => {
-    signOut()
-    router.refresh()
-  }
+    signOut();
+    router.refresh();
+  };
 
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger>
         <Avatar className="size-10 hover:opacity-75 transition border border-neutral-300">
+          <AvatarImage src={session.data?.user.image ?? ""} />
           <AvatarFallback className="bg-neutral-200 font-medium text-neutral-500 flex items-center justify-center">
             {avatarFallback}
           </AvatarFallback>
@@ -41,6 +42,7 @@ function UserButton() {
       >
         <div className="flex flex-col items-center justify-center gap-2 px-2.5 py-4">
           <Avatar className="size-[52px]transition border border-neutral-300">
+            <AvatarImage src={session.data?.user.image ?? ""} />
             <AvatarFallback className="bg-neutral-200 text-xl font-medium text-neutral-500 flex items-center justify-center">
               {avatarFallback}
             </AvatarFallback>

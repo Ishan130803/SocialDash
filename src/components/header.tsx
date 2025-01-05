@@ -1,12 +1,16 @@
-import { Bell, MessageSquare } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { UserButton } from '@/features/auth/components/user-button'
+import { Bell, MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { UserButton } from "@/features/auth/components/user-button";
+import { MobileSidebar } from "./mobile-sidebar";
 
 export function Header() {
   return (
     <header className="flex items-center justify-between px-6 py-4 bg-background border-b">
       <div className="flex items-center space-x-4">
+        <div className="contents lg:hidden">
+          <MobileSidebar />
+        </div>
         <h1 className="text-2xl font-bold">SocialDash</h1>
         <Input className="w-64" placeholder="Search..." type="search" />
       </div>
@@ -20,11 +24,10 @@ export function Header() {
           <span className="sr-only">Messages</span>
         </Button>
         <div>
-          <UserButton  />
+          <UserButton />
           <span className="sr-only">Profile</span>
         </div>
       </div>
     </header>
-  )
+  );
 }
-
