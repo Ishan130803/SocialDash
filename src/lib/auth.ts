@@ -3,6 +3,10 @@ import { MongoDBAdapter, MongoDBAdapterOptions } from "@auth/mongodb-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import clientPromise from "@/lib/mongodb";
 import { Adapter } from "next-auth/adapters";
+import CredentialsProvider from "next-auth/providers/credentials";
+import {
+  verifyUserDataFromCredentials,
+} from "@/features/api/actions";
 
 const getGoogleCredentials = () => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -33,28 +37,51 @@ export const authOptions: NextAuthOptions = {
       clientId: getGoogleCredentials().clientId,
       clientSecret: getGoogleCredentials().clientSecret,
     }),
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Username", type: "text", placeholder: "jsmith" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        try {
+          const user = (await verifyUserDataFromCredentials(
+            credentials as { email: string; password: string }
+          )) as createdUser;
+          const returnUser = {
+            name: user.name,
+            email: user.email,
+            id: user._id,
+            image: user.image,
+          };
+          return returnUser;
+        } catch {
+          return null;
+        }
+      },
+    }),
   ],
   session: {
     strategy: "jwt",
-    maxAge : 24*60*60*30,
+    maxAge: 24 * 60 * 60 * 30,
   },
   pages: {
     signIn: "/login",
-    signOut : "/login",
+    signOut: "/login",
   },
   callbacks: {
     async jwt({ token, account, user }) {
       if (account) {
-        token.accessToken = account?.access_token
-        token.providerId = account?.providerAccountId as string
-        token.id = user.id
+        token.accessToken = account?.access_token;
+        token.providerId = account?.providerAccountId as string;
+        token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
         session.user.id = token?.id;
-        session.user.providerId = token?.providerId
+        session.user.providerId = token?.providerId;
         session.user.email = token?.email;
         session.user.name = token?.name;
         session.user.image = token?.picture;

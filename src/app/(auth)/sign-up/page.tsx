@@ -1,4 +1,4 @@
-import { SignInCard } from "@/features/auth/components/sign-in-card";
+import { SignUpCard } from "@/features/auth/components/sign-up-card";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
@@ -8,7 +8,7 @@ async function SignInPage() {
     redirect("/dashboard");
   }
 
-  return <SignInCard></SignInCard>;
+  return <SignUpCard></SignUpCard>;
 }
 
 export default SignInPage;

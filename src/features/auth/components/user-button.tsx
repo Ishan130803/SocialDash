@@ -18,6 +18,7 @@ function UserButton() {
   const name = session.data?.user.name || "User";
   const email = session.data?.user.email || "user@mail.com";
   const router = useRouter();
+  console.log(session)
 
   const logoutHandler = () => {
     signOut();

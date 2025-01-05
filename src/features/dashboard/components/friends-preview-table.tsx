@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 // Sample data for each tab
 const tabData = [
@@ -54,7 +55,8 @@ const tabData = [
 export function TabledPreview() {
   const [activeTab, setActiveTab] = React.useState(tabData[0].id);
   const [selectedItem, setSelectedItem] = React.useState(tabData[0].items[0]);
-
+  const session = useSession()
+  console.log(session)
   return (
     <div className="p-4 w-full h-full flex flex-col lg:flex-row-reverse gap-4">
       <Preview className="hidden w-full md:block h-1/2" item={selectedItem} />

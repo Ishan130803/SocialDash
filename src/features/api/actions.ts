@@ -1,87 +1,127 @@
+import { authOptions } from "@/lib/auth";
 import { CreatedUser } from "@/models/user-model";
 import mongoose from "mongoose";
+import { getServerSession } from "next-auth";
 
-export async function addFriend(userId: string, friendId: string) {
+export async function acceptFriendRequest(userId: string, friendId: string) {
   try {
     mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
 
-    // Update the user's friends list
-    const result = await CreatedUser.findByIdAndUpdate(userId, {
-      $addToSet: { friends: friendId },
-    });
+      const tr1 = await CreatedUser.findByIdAndUpdate(
+        userId, // The user's ID
+        { $pull: { pending_requests: friendId } } // Remove friendId from friends array
+      ).session(session);
+      const tr2 = await CreatedUser.findByIdAndUpdate(
+        friendId, // The user's ID
+        { $pull: { sent_requests: userId } } // Remove friendId from friends array
+      ).session(session);
+      const tr5 = await CreatedUser.findByIdAndUpdate(
+        userId, // The user's ID
+        { $pull: { sent_requests: friendId } } // Remove friendId from friends array
+      ).session(session);
+      const tr6 = await CreatedUser.findByIdAndUpdate(
+        friendId, // The user's ID
+        { $pull: { pending_requests: userId } } // Remove friendId from friends array,
+      ).session(session);
+      const tr3 = await CreatedUser.findByIdAndUpdate(userId, {
+        $addToSet: { friends: friendId },
+      }).session(session);
+      const tr4 = await CreatedUser.findByIdAndUpdate(friendId, {
+        $addToSet: { friends: userId },
+      }).session(session);
+      await tr1.save();
+      await tr2.save();
+      await tr3.save();
+      await tr4.save();
+      await tr5.save();
+      await tr6.save();
+      await session.commitTransaction();
 
-    if (result) {
-      return { message: "Friend added successfully:", status: 200 };
-    } else {
-      return { message: "User not found.", status: 404 };
+      console.log("Friend Request accepted transaction completed");
+      return {
+        message: "Friend Request accepted transaction completed",
+        status: 200,
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
     }
-  } catch (error: any) {
-    return { message: `Error adding friend: ${error.message}`, status: 500 };
-  }
-}
-
-export async function addToPending(userId: string, friendId: string) {
-  try {
-    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
-
-    // Update the user's friends list
-    const result = await CreatedUser.findByIdAndUpdate(userId, {
-      $addToSet: { pending_requests: friendId },
-    });
-
-    if (result) {
-      return { message: "Friend added successfully:", status: 200 };
-    } else {
-      return { message: "User not found.", status: 404 };
-    }
-  } catch (error: any) {
+  } catch (error) {
     return {
-      message: `Error adding friend to pending: ${error.message}`,
+      message: `Error adding friend: ${(error as Error).message}`,
       status: 500,
     };
   }
 }
 
-export async function addToSent(userId: string, friendId: string) {
+export async function send_friend_request(userId: string, friendId: string) {
   try {
     mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
 
-    // Update the user's friends list
-    const result = await CreatedUser.findByIdAndUpdate(userId, {
-      $addToSet: { sent_requests: friendId },
-    });
+      const tr1 = await CreatedUser.findByIdAndUpdate(userId, {
+        $addToSet: { sent_requests: friendId },
+      }).session(session);
+      const tr2 = await CreatedUser.findByIdAndUpdate(friendId, {
+        $addToSet: { pending_requests: userId },
+      }).session(session);
+      await tr1.save();
+      await tr2.save();
+      await session.commitTransaction();
 
-    if (result) {
-      return { message: "Friend added successfully:", status: 200 };
-    } else {
-      return { message: "User not found.", status: 404 };
+      console.log("Friend Request sent transaction completed");
+      return {
+        message: "Friend Request sent transaction completed",
+        status: 200,
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
     }
-  } catch (error: any) {
+  } catch (error) {
     return {
-      message: `Error sending request to  friend: ${error.message}`,
+      message: `Error adding friend to pending: ${(error as Error).message}`,
       status: 500,
     };
   }
 }
 
-export async function unfriend(userId1: string, userId2: string) {
+export async function unfriend(userId: string, friendId: string) {
   try {
     mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
 
-    // Update the user's friends list
-    await CreatedUser.findByIdAndUpdate(
-      userId1, // The user's ID
-      { $pull: { friends: userId2 } } // Remove friendId from friends array
-    );
-    await CreatedUser.findByIdAndUpdate(
-      userId2, // The user's ID
-      { $pull: { friends: userId1 } } // Remove friendId from friends array
-    );
+      const tr1 = await CreatedUser.findByIdAndUpdate(
+        userId, // The user's ID
+        { $pull: { friends: friendId } } // Remove friendId from friends array
+      ).session(session);
+      const tr2 = await CreatedUser.findByIdAndUpdate(
+        friendId, // The user's ID
+        { $pull: { friends: userId } } // Remove friendId from friends array
+      ).session(session);
+      await tr1.save();
+      await tr2.save();
+      await session.commitTransaction();
 
-    return { message: "Unfriended", status: 301 };
-  } catch (error: any) {
+      console.log("Unfriend Request sent transaction completed");
+      return {
+        message: "Unfriend Request sent transaction completed",
+        status: 200,
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    }
+  } catch (error) {
     return {
-      message: `Error while unfriending : ${error.message}`,
+      message: `Error while unfriending : ${(error as Error).message}`,
       status: 500,
     };
   }
@@ -92,9 +132,21 @@ export async function getUserData(userId: string) {
     mongoose.connect(process.env.MONGODB_DATABASE_URI!);
     const data = (await CreatedUser.findById(userId)) as createdUser;
     console.log(data);
-    return { message: "Found User", data: data, status: 201 };
-  } catch (error: any) {
-    return { message: error.message, status: 500 };
+    return {
+      message: "Found User",
+      data: {
+        name: data.name,
+        _id: data._id,
+        email: data.email,
+        pending_requests: data.pending_requests,
+        sent_requests: data.sent_requests,
+        friends: data.friends,
+        image: data.image,
+      },
+      status: 201,
+    };
+  } catch (error) {
+    return { message: (error as Error).message, status: 500 };
   }
 }
 
@@ -113,7 +165,70 @@ export async function bulkGetBasicUserData(userIds: string[]) {
       { _id: 1, name: 1, email: 1, image: 1 }
     )) as bulkGetBasicUserDataRetType[];
     return { message: "Found users", data: data, status: 201 };
-  } catch (error: any) {
-    return { message: error.message, status: 500 };
+  } catch (error) {
+    return { message: (error as Error).message, data: [], status: 500 };
   }
+}
+
+export const insertUser = async (userData: {
+  name: string;
+  email: string;
+  password: string;
+}) => {
+  try {
+    // Attempt to create the user
+    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    console.log("Here");
+    const newUser = (await CreatedUser.create(userData)) as createdUser;
+    console.log("User created:", newUser);
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((error as any).code === 11000) {
+      // Duplicate key error code
+      console.error("Email already exists:", userData.email);
+      throw new Error("Email already exists.");
+    }
+    console.error("Error inserting user:", (error as Error).message);
+    throw new Error("Failed to Register");
+  }
+};
+
+export async function verifyUserDataFromCredentials({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) {
+  try {
+    const user = (await CreatedUser.findOne({
+      email,
+      password,
+    })) as createdUser;
+    if (!user) {
+      return null;
+    }
+    const isPassValid = password === user.password;
+    if (!isPassValid) {
+      return null;
+    }
+    return user;
+  } catch {
+    return null;
+  }
+}
+
+export async function getAllUsers() {
+  try {
+    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    const data = (await CreatedUser.find(
+      {},
+      { _id: 1, name: 1, email: 1, image: 1 }
+    )) as bulkGetBasicUserDataRetType[];
+    return { message: "Found users", data: data, status: 201 };
+  } catch (error) {
+    return { message: (error as Error).message, status: 500 };
+  }
+}
+
 }

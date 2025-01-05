@@ -2,78 +2,59 @@ import { DottedSeparator } from "@/components/DottedSeparator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
-import Image from "next/image";
 import { KnowPeopleBanner } from "./know-people-banner";
-
-const knowPeopleList = [
-  {
-    _id: "1",
-    name: "Alice",
-    email: "jklajsdlfkj",
-    image: "Just finished a great book!",
-  },
-  {
-    _id: "2",
-    name: "Bob",
-    email: "jklajsdlfkj",
-    image: "Check out my new photo album",
-  },
-  {
-    _id: "3",
-    name: "Charlie",
-    email: "jklajsdlfkj",
-    image: "Who's up for a game night?",
-  },
-  {
-    _id: "3",
-    name: "Charlie",
-    email: "jklajsdlfkj",
-    image: "Who's up for a game night?",
-  },
-  {
-    _id: "3",
-    name: "Charlie",
-    email: "jklajsdlfkj",
-    image: "Who's up for a game night?",
-  },
-  {
-    _id: "3",
-    name: "Charlie",
-    email: "jklajsdlfkj",
-    image: "Who's up for a game night?",
-  },
-  {
-    _id: "3",
-    name: "Charlie",
-    email: "jklajsdlfkj",
-    image: "Who's up for a game night?",
-  },
-  {
-    _id: "3",
-    name: "Charlie",
-    email: "jklajsdlfkj",
-    image: "Who's up for a game night?",
-  },
-];
+import { client } from "@/lib/rpc";
+import { getAllUsers, getUserData } from "@/features/api/actions";
 
 async function UserProfileSection() {
   const session = await getServerSession(authOptions);
   if (!session) {
     return null;
   }
+  console.log(session)
+  const curr_user_id = session.user.id
+
+  const avatarFallback = session?.user.name?.charAt(0) || "U";
+
+  const user_ids = (await getAllUsers()).data
+  const response = await client.api.data["bulk-get"].$post({
+    json: user_ids,
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+  const parsed_data = ((await response.json()).data ?? []) as {_id : string, name : string, email : string, image : string}[];
+
+  const user_data = (await getUserData(curr_user_id)).data as createdUser
+  const status_mapped_parsed_data = parsed_data.map((item) => {
+    if (user_data.friends.includes(item._id)) {
+      return {...item, friend_status : 1}
+    }
+    else if (user_data.sent_requests.includes(item._id)) {
+      return {...item, friend_status : 2}
+    } 
+    else if (user_data.pending_requests.includes(item._id)) {
+      return {...item, friend_status : 3}
+    } else {
+      return {...item, friend_status : 0}
+    }
+  })
 
   return (
     <>
       <section className="w-full pt-10">
         <div className="w-full grid grid-cols-1 gap-10 lg:grid-cols-2 place-items-center">
           <div>
-            <Image
-              width={500}
-              height={500}
-              src={session.user.image ?? ""}
-              alt="user's image"
-              className="object-cover rounded-xl"
-            ></Image>
+            <Avatar className="rounded-xl size-36 transition border border-neutral-300">
+              <AvatarImage
+                className="rounded-xl"
+                src={session.user.image ?? ""}
+              />
+              <AvatarFallback className="rounded-xl bg-neutral-200 text-3xl font-medium text-neutral-500 flex items-center justify-center">
+                {avatarFallback}
+              </AvatarFallback>
+            </Avatar>
           </div>
           <div className="flex flex-col w-full h-full lg:justify-center">
             <h1 className="text-4xl md:4xl lg:6xl self-center">
@@ -96,7 +77,7 @@ async function UserProfileSection() {
       <section className="max-w-full">
         <h2 className="mx-10 text-xl my-5 font-bold ">People you may know</h2>
         <div className="flex gap-2 overflow-x-scroll mx-10">
-          {knowPeopleList.map((item) => (
+          {status_mapped_parsed_data.map((item) => (
             <KnowPeopleBanner {...item} key={item._id} />
           ))}
         </div>

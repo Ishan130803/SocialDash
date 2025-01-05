@@ -7,6 +7,7 @@ interface User {
 
 type createdUser = {
   name : string,
+  password: string,
   _id : string,
   email : string,
   image : string,

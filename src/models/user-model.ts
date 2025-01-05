@@ -15,9 +15,10 @@ const createdUserSchema = new mongoose.Schema(
       lowercase: true,
       match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
     },
-    image: {
+    password: {
       type: String,
-      required: true,
+      required: false,
+      trim: true,
     },
     friends: {
       type: [String],
@@ -31,6 +32,9 @@ const createdUserSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    image: {
+      type: String,
+    },
   },
   {
     timestamps: true,
@@ -39,4 +43,4 @@ const createdUserSchema = new mongoose.Schema(
 );
 
 // Create the model
-export const CreatedUser = mongoose.models.CreatedUser || mongoose.model('CreatedUser', createdUserSchema);
+export const CreatedUser = mongoose.models?.CreatedUser || mongoose.model('CreatedUser', createdUserSchema);
