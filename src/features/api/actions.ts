@@ -201,6 +201,7 @@ export async function verifyUserDataFromCredentials({
   password: string;
 }) {
   try {
+    await connectToDatabase()
     const user = (await CreatedUser.findOne({
       email,
       password,
@@ -213,7 +214,8 @@ export async function verifyUserDataFromCredentials({
       return null;
     }
     return user;
-  } catch {
+  } catch(error) {
+    console.error(error)
     return null;
   }
 }

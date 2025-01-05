@@ -43,6 +43,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
+          console.log("authorize")
           const user = (await verifyUserDataFromCredentials(
             credentials as { email: string; password: string }
           )) as createdUser;
