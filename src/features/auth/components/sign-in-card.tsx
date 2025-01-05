@@ -1,8 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+// import { FcGoogle } from "react-icons/fc";
+// import { FaGithub } from "react-icons/fa";
 import { DottedSeparator } from "@/components/DottedSeparator";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
@@ -19,14 +19,15 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { toast } from "sonner";
 
 function SignInCard() {
-  const loginWithGoogleHandler = () => {
-    signIn("google").catch(() => {
-      setDisabled(false);
-    });
-    setDisabled(true);
-  };
+  // const loginWithGoogleHandler = () => {
+  //   signIn("google").catch(() => {
+  //     setDisabled(false);
+  //   });
+  //   setDisabled(true);
+  // };
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -37,12 +38,18 @@ function SignInCard() {
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setDisabled(true);
-    await signIn("credentials", {
-      email : values.email,
-      password : values.password,
-      redirect: true,
-    });
-    setDisabled(false);
+    try {
+      await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: true
+      });
+      toast.success("Logged In");
+    } catch {
+      toast.error("Incorrect username or password");
+    } finally {
+      setDisabled(false);
+    }
   };
 
   const [disabled, setDisabled] = useState(false);
@@ -103,7 +110,7 @@ function SignInCard() {
       <div className="px-7">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7 flex flex-col gap-y-4">
+      {/* <CardContent className="p-7 flex flex-col gap-y-4">
         <Button
           variant={"secondary"}
           size={"lg"}
@@ -126,7 +133,7 @@ function SignInCard() {
       </CardContent>
       <div className="px-7">
         <DottedSeparator />
-      </div>
+      </div> */}
       <div className="p-7  flex items-center justify-center">
         <p>
           Don&apos;t have an account?

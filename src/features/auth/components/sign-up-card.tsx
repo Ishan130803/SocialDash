@@ -3,8 +3,8 @@ import { DottedSeparator } from "@/components/DottedSeparator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+// import { FcGoogle } from "react-icons/fc";
+// import { FaGithub } from "react-icons/fa";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,9 +18,9 @@ import {
 import Link from "next/link";
 import { signUpSchema } from "../schema";
 import { useState } from "react";
-import { insertUser } from "@/features/api/actions";
 import { toast } from "sonner";
-import { redirect } from "next/navigation";
+import { client } from "@/lib/rpc";
+import { signIn } from "next-auth/react";
 
 function SignUpCard() {
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -32,18 +32,26 @@ function SignUpCard() {
     },
   });
 
-
   const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
     try {
       setDisabled(true);
-      await insertUser(values);
-      toast.success("Registered Successfully")
-      form.reset()
-      redirect('/sign-in')
-
-    } catch (error: any) {
+      const res = await client.api.data.register.$post({ json: values });
+      const message = await res.text();
+      if (!res.ok) {
+        throw new Error(message);
+      }
+      toast.success("Registered Successfully");
+      form.reset();
       setDisabled(false);
-      toast.error(error.message)
+      await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: true,
+      });
+    } catch (error: any) {
+      console.error(error);
+      setDisabled(false);
+      toast.error(error.message);
     }
   };
 
@@ -121,7 +129,7 @@ function SignUpCard() {
       <div className="px-7">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7 flex flex-col gap-y-4">
+      {/* <CardContent className="p-7 flex flex-col gap-y-4">
         <Button
           variant={"secondary"}
           size={"lg"}
@@ -143,7 +151,7 @@ function SignUpCard() {
       </CardContent>
       <div className="px-7">
         <DottedSeparator />
-      </div>
+      </div> */}
       <div className="p-7  flex items-center justify-center">
         <p>
           Already have an account?

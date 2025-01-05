@@ -4,9 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import clientPromise from "@/lib/mongodb";
 import { Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
-import {
-  verifyUserDataFromCredentials,
-} from "@/features/api/actions";
+import { verifyUserDataFromCredentials } from "@/features/api/actions";
 
 const getGoogleCredentials = () => {
   const clientId = process.env.GOOGLE_CLIENT_ID;

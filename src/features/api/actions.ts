@@ -1,9 +1,9 @@
+import { connectToDatabase } from "@/lib/mongoose-client";
 import { CreatedUser } from "@/models/user-model";
-import mongoose from "mongoose";
 
 export async function acceptFriendRequest(userId: string, friendId: string) {
   try {
-    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    const mongoose = await connectToDatabase();
     const session = await mongoose.startSession();
     try {
       session.startTransaction();
@@ -57,7 +57,8 @@ export async function acceptFriendRequest(userId: string, friendId: string) {
 
 export async function send_friend_request(userId: string, friendId: string) {
   try {
-    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    const mongoose = await connectToDatabase();
+
     const session = await mongoose.startSession();
     try {
       session.startTransaction();
@@ -91,7 +92,8 @@ export async function send_friend_request(userId: string, friendId: string) {
 
 export async function unfriend(userId: string, friendId: string) {
   try {
-    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    const mongoose = await connectToDatabase();
+
     const session = await mongoose.startSession();
     try {
       session.startTransaction();
@@ -127,7 +129,8 @@ export async function unfriend(userId: string, friendId: string) {
 
 export async function getUserData(userId: string) {
   try {
-    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    await connectToDatabase();
+
     const data = (await CreatedUser.findById(userId)) as createdUser;
     console.log(data);
     return {
@@ -157,7 +160,8 @@ type bulkGetBasicUserDataRetType = {
 
 export async function bulkGetBasicUserData(userIds: string[]) {
   try {
-    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    await connectToDatabase();
+
     const data = (await CreatedUser.find(
       { _id: { $in: userIds } },
       { _id: 1, name: 1, email: 1, image: 1 }
@@ -174,9 +178,7 @@ export const insertUser = async (userData: {
   password: string;
 }) => {
   try {
-    // Attempt to create the user
-    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
-    console.log("Here");
+    await connectToDatabase();
     const newUser = (await CreatedUser.create(userData)) as createdUser;
     console.log("User created:", newUser);
   } catch (error) {
@@ -218,7 +220,8 @@ export async function verifyUserDataFromCredentials({
 
 export async function getAllUsers() {
   try {
-    mongoose.connect(process.env.MONGODB_DATABASE_URI!);
+    await connectToDatabase();
+
     const data = (await CreatedUser.find(
       {},
       { _id: 1, name: 1, email: 1, image: 1 }

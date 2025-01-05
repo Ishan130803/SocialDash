@@ -1,4 +1,5 @@
-import { bulkGetBasicUserData } from "@/features/api/actions";
+import { bulkGetBasicUserData, insertUser } from "@/features/api/actions";
+import { connectToDatabase } from "@/lib/mongoose-client";
 import { Hono } from "hono";
 // type MiddlewareType = {
 //   Variables: {
@@ -18,11 +19,22 @@ import { Hono } from "hono";
 //   await next();
 // });
 
-const app = new Hono().post("/bulk-get", async (c) => {
-  const user_ids = await c.req.json();
-  const friend_data = await bulkGetBasicUserData(user_ids);
-  
-  return c.json(friend_data);
-});
+const app = new Hono()
+  .post("/bulk-get", async (c) => {
+    const user_ids = await c.req.json();
+    const friend_data = await bulkGetBasicUserData(user_ids);
+
+    return c.json(friend_data);
+  })
+  .post("/register", async (c) => {
+    await connectToDatabase();
+    const user_data = await c.req.json();
+    try {
+      await insertUser(user_data);
+      return c.body("User Registered Successfully", 200);
+    } catch (error) {
+      return c.body((error as any).message, 500);
+    }
+  });
 
 export default app;
