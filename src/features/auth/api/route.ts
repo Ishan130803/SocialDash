@@ -1,19 +1,17 @@
-import { insertUser } from "@/features/api/actions";
-import { auth, signOut, signIn } from "@/lib/auth";
+import { getUserData, insertUser } from "@/features/api/actions";
+import { signOut, signIn } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongoose-client";
 import { Hono } from "hono";
+import { sessionMiddleware } from "./session-middleware";
 
 const app = new Hono()
-  .get("/current", async (c) => {
-    const session = await auth();
-    if (!session) {
-      return c.body("User is not authenticated", 401);
+  .get("/current", sessionMiddleware, async (c) => {
+    const user_id = c.get("user_id");
+    const user_data = (await getUserData(user_id)).data;
+    if (!user_data) {
+      return c.text("Unable to find the user", 404);
     }
-    const user_id = session.user?.id;
-    if (!user_id) {
-      return c.body("User is not authenticated", 401);
-    }
-    return c.json(session);
+    return c.json(user_data);
   })
   .post("/register", async (c) => {
     await connectToDatabase();
@@ -27,23 +25,23 @@ const app = new Hono()
   })
   .post("/logout", async (c) => {
     try {
-      await signOut({redirect:false});
-      console.log("Signed Out")
+      await signOut({ redirect: false });
       return c.body("Logged Out", 200);
     } catch (error) {
-      console.error(error)
+      console.error(error);
       throw error;
     }
-  }).post("/login", async(c) => {
-    try {
-      type signInType = Parameters<typeof signIn>
-      const data = await c.req.json() as signInType
-      await signIn(...data)
-      return c.body("Signed In")
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
   })
+  .post("/login", async (c) => {
+    try {
+      type signInType = Parameters<typeof signIn>;
+      const data = (await c.req.json()) as signInType;
+      await signIn(...data);
+      return c.body("Signed In");
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  });
 
 export default app;

@@ -1,54 +1,15 @@
 import { DottedSeparator } from "@/components/DottedSeparator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { auth } from "@/lib/auth";
-import { KnowPeopleBanner } from "./know-people-banner";
-import { client } from "@/lib/rpc";
-import { getAllUsers, getUserData } from "@/features/api/actions";
-import { headers } from "next/headers";
+import { PeopleYouMayKnowSection } from "./people-you-may-know";
 
 async function UserProfileSection() {
   const session = await auth();
   if (!session) {
     return null;
   }
-  const curr_user_id = session.user.id;
 
   const avatarFallback = session?.user.name?.charAt(0) || "U";
-
-  const user_ids = (await getAllUsers()).data;
-  const all_headers = Object.fromEntries(headers());
-  console.log("all", all_headers);
-  const response = await client.api.data["bulk-get"].$post(
-    {
-      json: user_ids,
-    },
-    {
-      headers: all_headers,
-    }
-  );
-
-  if (!response.ok) {
-    return null;
-  }
-  const parsed_data = ((await response.json()).data ?? []) as {
-    _id: string;
-    name: string;
-    email: string;
-    image: string;
-  }[];
-
-  const user_data = (await getUserData(curr_user_id)).data as createdUser;
-  const status_mapped_parsed_data = parsed_data.map((item) => {
-    if (user_data.friends.includes(item._id)) {
-      return { ...item, friend_status: 1 };
-    } else if (user_data.sent_requests.includes(item._id)) {
-      return { ...item, friend_status: 2 };
-    } else if (user_data.pending_requests.includes(item._id)) {
-      return { ...item, friend_status: 3 };
-    } else {
-      return { ...item, friend_status: 0 };
-    }
-  });
 
   return (
     <>
@@ -83,14 +44,7 @@ async function UserProfileSection() {
       <div className="p-7">
         <DottedSeparator />
       </div>
-      <section className="max-w-full">
-        <h2 className="mx-10 text-xl my-5 font-bold ">People you may know</h2>
-        <div className="flex gap-2 overflow-x-scroll mx-10">
-          {status_mapped_parsed_data.map((item) => (
-            <KnowPeopleBanner {...item} key={item._id} />
-          ))}
-        </div>
-      </section>
+      <PeopleYouMayKnowSection />
     </>
   );
 }

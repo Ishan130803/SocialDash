@@ -38,7 +38,6 @@ export async function acceptFriendRequest(userId: string, friendId: string) {
       await tr6.save();
       await session.commitTransaction();
 
-      console.log("Friend Request accepted transaction completed");
       return {
         message: "Friend Request accepted transaction completed",
         status: 200,
@@ -73,7 +72,6 @@ export async function send_friend_request(userId: string, friendId: string) {
       await tr2.save();
       await session.commitTransaction();
 
-      console.log("Friend Request sent transaction completed");
       return {
         message: "Friend Request sent transaction completed",
         status: 200,
@@ -110,7 +108,6 @@ export async function unfriend(userId: string, friendId: string) {
       await tr2.save();
       await session.commitTransaction();
 
-      console.log("Unfriend Request sent transaction completed");
       return {
         message: "Unfriend Request sent transaction completed",
         status: 200,
@@ -178,8 +175,7 @@ export const insertUser = async (userData: {
 }) => {
   try {
     await connectToDatabase();
-    const newUser = (await CreatedUser.create(userData)) as createdUser;
-    console.log("User created:", newUser);
+    (await CreatedUser.create(userData)) as createdUser;
   } catch (error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((error as any).code === 11000) {
@@ -226,7 +222,7 @@ export async function getAllUsers() {
     const data = (await CreatedUser.find(
       {},
       { _id: 1, name: 1, email: 1, image: 1 }
-    )) as bulkGetBasicUserDataRetType[];
+    ))
     return { message: "Found users", data: data, status: 201 };
   } catch (error) {
     return { message: (error as Error).message, status: 500 };

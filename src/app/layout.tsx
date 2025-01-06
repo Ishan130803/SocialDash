@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { SessionProviderWrapper } from "@/features/auth/components/session-provider-wrapper";
 import { Toaster } from "@/components/ui/sonner";
+import { QueryClientWrapper } from "@/components/query-client-wrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,7 +33,7 @@ export default function RootLayout({
       >
         <SessionProviderWrapper>
           <Toaster />
-          {children}
+          <QueryClientWrapper>{children}</QueryClientWrapper>
         </SessionProviderWrapper>
       </body>
     </html>

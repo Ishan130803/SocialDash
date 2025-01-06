@@ -9,7 +9,6 @@ type MiddlewareType = {
 export const sessionMiddleware = createMiddleware<MiddlewareType>(
   async (c, next) => {
     const session = await auth();
-    console.log(session, "IN middleware");
     if (!session) {
       return c.body("User is not authenticated", 401);
     }

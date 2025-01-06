@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 
 async function SignInPage() {
   const session = await auth()
-  console.log(session)
   if (session) {
     redirect("/dashboard");
   }

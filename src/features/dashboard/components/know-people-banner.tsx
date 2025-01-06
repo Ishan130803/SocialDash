@@ -2,7 +2,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { client } from "@/lib/rpc";
-import { Check, Cross, Send, X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Check, Plus, X } from "lucide-react";
 
 type KnowPeopleBannerProps = {
   _id: string;
@@ -55,32 +56,38 @@ function KnowPeopleBanner({
 export { KnowPeopleBanner };
 
 const SendRequestButton = ({ friend_id }: { friend_id: string }) => {
+  const queryClient = useQueryClient();
   const sendRequestHandler = async () => {
     await client.api.friends["send-friend-request"].$post({
       query: { friend_id: friend_id },
     });
+    queryClient.invalidateQueries({ queryKey: ["recommended"] });
   };
   return (
     <Button
       onClick={sendRequestHandler}
-      className="w-full flex justify-center items-center gap-2 mt-4"
+      className="w-40  flex justify-center items-center gap-2 mt-4"
+      variant={"primary"}
     >
-      <span className="">Send Request</span>
-      <Send />
+      <span className="">Add Friend</span>
+      <Plus />
     </Button>
   );
 };
 
 const CancelRequestButton = ({ friend_id }: { friend_id: string }) => {
+  const queryClient = useQueryClient();
   const onClickHandler = async () => {
     await client.api.friends["cancel-friend-request"].$post({
       query: { friend_id: friend_id },
     });
+    queryClient.invalidateQueries({ queryKey: ["recommended"] });
   };
   return (
     <Button
       onClick={onClickHandler}
-      className="w-full flex justify-center items-center gap-2 mt-4"
+      variant={"muted"}
+      className="w-40 flex justify-center items-center gap-2 mt-4"
     >
       <span className="">Cancel Request</span>
       <X />
@@ -89,31 +96,37 @@ const CancelRequestButton = ({ friend_id }: { friend_id: string }) => {
 };
 
 const AlreadyFriendsButton = ({ friend_id }: { friend_id: string }) => {
+  const queryClient = useQueryClient();
   const onClickHandler = async () => {
     await client.api.friends["un-friend-request"].$post({
       query: { friend_id },
     });
+    queryClient.invalidateQueries({ queryKey: ["recommended"] });
   };
   return (
     <Button
       onClick={onClickHandler}
-      className="w-full flex justify-center items-center gap-2 mt-4"
+      variant={"destructive"}
+      className="w-40  flex justify-center items-center gap-2 mt-4"
     >
       <span className="">Unfriend</span>
-      <Cross />
+      <X />
     </Button>
   );
 };
 const AcceptRequestButton = ({ friend_id }: { friend_id: string }) => {
+  const queryClient = useQueryClient();
   const onClickHandler = async () => {
     await client.api.friends["accept-friend-request"].$post({
       query: { friend_id },
     });
+    queryClient.invalidateQueries({ queryKey: ["recommended"] });
   };
   return (
     <Button
+      variant={"teritary"}
       onClick={onClickHandler}
-      className="w-full flex justify-center items-center gap-2 mt-4"
+      className="w-40  flex justify-center items-center gap-2 mt-4"
     >
       <span className="">Accept Request</span>
       <Check />

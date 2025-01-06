@@ -104,7 +104,6 @@ export async function IncomingRequestTable() {
   // if (!userId) {
   //   return null;
   // }
-  // console.log(userId);
   // const userData = await getUserData(userId);
   // const userFriends = userData.data?.friends ?? [];
   // const friendsData = (await bulkGetBasicUserData(userFriends)).data;

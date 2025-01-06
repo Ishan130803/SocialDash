@@ -11,7 +11,6 @@ type routeParams = {
 
 async function Page({ searchParams: { page } }: routeParams) {
   const session = await auth()
-  console.log("dashboard", session)
   if (!session) {
     redirect("/sign-in");
   }
