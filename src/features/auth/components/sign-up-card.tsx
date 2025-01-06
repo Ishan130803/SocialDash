@@ -20,7 +20,6 @@ import { signUpSchema } from "../schema";
 import { useState } from "react";
 import { toast } from "sonner";
 import { client } from "@/lib/rpc";
-import { signIn } from "@/lib/auth";
 
 function SignUpCard() {
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -43,11 +42,15 @@ function SignUpCard() {
       toast.success("Registered Successfully");
       form.reset();
       setDisabled(false);
-      await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        redirect: true,
-      });
+      const args = [
+        "credentials",
+        {
+          email: values.email,
+          password: values.password,
+          redirect: false,
+        },
+      ];
+      await client.api.user.login.$post({ json: args });
     } catch (error: any) {
       console.error(error);
       setDisabled(false);

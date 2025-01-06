@@ -200,7 +200,7 @@ export async function verifyUserDataFromCredentials({
   password: string;
 }) {
   try {
-    await connectToDatabase()
+    await connectToDatabase();
     const user = (await CreatedUser.findOne({
       email,
       password,
@@ -213,8 +213,8 @@ export async function verifyUserDataFromCredentials({
       return null;
     }
     return user;
-  } catch(error) {
-    console.error(error)
+  } catch (error) {
+    console.error(error);
     return null;
   }
 }
@@ -231,4 +231,32 @@ export async function getAllUsers() {
   } catch (error) {
     return { message: (error as Error).message, status: 500 };
   }
+}
+
+export async function cancelFriendRequest(user_id: string, friend_id: string) {
+  await connectToDatabase();
+  const result = await CreatedUser.bulkWrite([
+    {
+      updateOne: {
+        filter: {
+          _id: user_id,
+        },
+        update: {
+          $pull: { sent_requests: friend_id },
+        },
+      },
+    },
+    {
+      updateOne: {
+        filter: {
+          _id: friend_id,
+        },
+        update: {
+          $pull: { pending_requests: user_id },
+        },
+      },
+    },
+  ]);
+
+  return result
 }

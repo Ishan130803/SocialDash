@@ -1,4 +1,3 @@
-import "server-only";
 import NextAuth from "next-auth";
 import { MongoDBAdapter, MongoDBAdapterOptions } from "@auth/mongodb-adapter";
 import GoogleProvider from "next-auth/providers/google";
