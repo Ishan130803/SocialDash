@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import { getServerSession, NextAuthOptions } from "next-auth";
 import { MongoDBAdapter, MongoDBAdapterOptions } from "@auth/mongodb-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import clientPromise from "@/lib/mongodb";
@@ -95,3 +95,8 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+
+
+export function auth() {
+  return getServerSession(authOptions)
+}

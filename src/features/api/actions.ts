@@ -132,7 +132,6 @@ export async function getUserData(userId: string) {
     await connectToDatabase();
 
     const data = (await CreatedUser.findById(userId)) as createdUser;
-    console.log(data);
     return {
       message: "Found User",
       data: {

@@ -35,7 +35,7 @@ function SignUpCard() {
   const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
     try {
       setDisabled(true);
-      const res = await client.api.data.register.$post({ json: values });
+      const res = await client.api.user.register.$post({ json: values });
       const message = await res.text();
       if (!res.ok) {
         throw new Error(message);

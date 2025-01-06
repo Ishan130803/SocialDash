@@ -15,7 +15,6 @@ async function Page({ searchParams: { page } }: routeParams) {
   if (!session) {
     redirect("/sign-in");
   }
-  console.log(page);
   if (page === "friends") {
     return <FriendsSection />;
   }

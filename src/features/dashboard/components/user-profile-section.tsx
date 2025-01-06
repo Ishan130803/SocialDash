@@ -11,12 +11,11 @@ async function UserProfileSection() {
   if (!session) {
     return null;
   }
-  console.log(session)
-  const curr_user_id = session.user.id
+  const curr_user_id = session.user.id;
 
   const avatarFallback = session?.user.name?.charAt(0) || "U";
 
-  const user_ids = (await getAllUsers()).data
+  const user_ids = (await getAllUsers()).data;
   const response = await client.api.data["bulk-get"].$post({
     json: user_ids,
   });
@@ -24,22 +23,25 @@ async function UserProfileSection() {
   if (!response.ok) {
     return null;
   }
-  const parsed_data = ((await response.json()).data ?? []) as {_id : string, name : string, email : string, image : string}[];
+  const parsed_data = ((await response.json()).data ?? []) as {
+    _id: string;
+    name: string;
+    email: string;
+    image: string;
+  }[];
 
-  const user_data = (await getUserData(curr_user_id)).data as createdUser
+  const user_data = (await getUserData(curr_user_id)).data as createdUser;
   const status_mapped_parsed_data = parsed_data.map((item) => {
     if (user_data.friends.includes(item._id)) {
-      return {...item, friend_status : 1}
-    }
-    else if (user_data.sent_requests.includes(item._id)) {
-      return {...item, friend_status : 2}
-    } 
-    else if (user_data.pending_requests.includes(item._id)) {
-      return {...item, friend_status : 3}
+      return { ...item, friend_status: 1 };
+    } else if (user_data.sent_requests.includes(item._id)) {
+      return { ...item, friend_status: 2 };
+    } else if (user_data.pending_requests.includes(item._id)) {
+      return { ...item, friend_status: 3 };
     } else {
-      return {...item, friend_status : 0}
+      return { ...item, friend_status: 0 };
     }
-  })
+  });
 
   return (
     <>
