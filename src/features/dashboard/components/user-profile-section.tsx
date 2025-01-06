@@ -1,13 +1,13 @@
 import { DottedSeparator } from "@/components/DottedSeparator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
+import { auth } from "@/lib/auth";
 import { KnowPeopleBanner } from "./know-people-banner";
 import { client } from "@/lib/rpc";
 import { getAllUsers, getUserData } from "@/features/api/actions";
+import { headers } from "next/headers";
 
 async function UserProfileSection() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session) {
     return null;
   }
@@ -16,9 +16,16 @@ async function UserProfileSection() {
   const avatarFallback = session?.user.name?.charAt(0) || "U";
 
   const user_ids = (await getAllUsers()).data;
-  const response = await client.api.data["bulk-get"].$post({
-    json: user_ids,
-  });
+  const all_headers = Object.fromEntries(headers());
+  console.log("all", all_headers);
+  const response = await client.api.data["bulk-get"].$post(
+    {
+      json: user_ids,
+    },
+    {
+      headers: all_headers,
+    }
+  );
 
   if (!response.ok) {
     return null;

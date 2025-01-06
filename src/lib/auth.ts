@@ -1,10 +1,12 @@
-import { getServerSession, NextAuthOptions } from "next-auth";
+import "server-only";
+import NextAuth from "next-auth";
 import { MongoDBAdapter, MongoDBAdapterOptions } from "@auth/mongodb-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import clientPromise from "@/lib/mongodb";
 import { Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { verifyUserDataFromCredentials } from "@/features/api/actions";
+import { NextAuthConfig } from "next-auth";
 
 const getGoogleCredentials = () => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -28,7 +30,7 @@ const mongoOptions: MongoDBAdapterOptions = {
   },
 };
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthConfig = {
   adapter: MongoDBAdapter(clientPromise, mongoOptions) as Adapter,
   providers: [
     GoogleProvider({
@@ -43,7 +45,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          console.log("authorize")
+          console.log("authorize");
           const user = (await verifyUserDataFromCredentials(
             credentials as { email: string; password: string }
           )) as createdUser;
@@ -64,10 +66,6 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 24 * 60 * 60 * 30,
   },
-  pages: {
-    signIn: "/login",
-    signOut: "/login",
-  },
   callbacks: {
     async jwt({ token, account, user }) {
       if (account) {
@@ -79,24 +77,17 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token?.id;
-        session.user.providerId = token?.providerId;
-        session.user.email = token?.email;
-        session.user.name = token?.name;
-        session.user.image = token?.picture;
+        session.user.id = token?.id as string;
+        session.user.email = token?.email as string;
+        session.user.name = token?.name as string;
+        session.user.image = token?.picture as string;
       }
       return session;
     },
     async signIn() {
       return true;
     },
-    redirect() {
-      return "/dashboard";
-    },
   },
 };
 
-
-export function auth() {
-  return getServerSession(authOptions)
-}
+export const { handlers, signIn, signOut, auth } = NextAuth(authOptions);

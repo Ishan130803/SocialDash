@@ -1,9 +1,9 @@
 import { SignUpCard } from "@/features/auth/components/sign-up-card";
-import { getServerSession } from "next-auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 async function SignInPage() {
-  const session = await getServerSession();
+  const session = await auth()
   if (session) {
     redirect("/dashboard");
   }

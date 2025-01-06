@@ -2,10 +2,9 @@ import {
   acceptFriendRequest,
   send_friend_request,
 } from "@/features/api/actions";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
-import { getServerSession } from "next-auth";
 type MiddlewareType = {
   Variables: {
     user_id: string;
@@ -13,7 +12,7 @@ type MiddlewareType = {
 };
 
 const sessionMiddleware = createMiddleware<MiddlewareType>(async (c, next) => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session) {
     return c.body("User is not authenticated", 401);
   }

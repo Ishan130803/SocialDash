@@ -8,8 +8,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { client } from "@/lib/rpc";
+// import { signOut } from "@/lib/auth-server-actions";
 import { LogOut } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import {  useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 function UserButton() {
@@ -18,10 +20,9 @@ function UserButton() {
   const name = session.data?.user.name || "User";
   const email = session.data?.user.email || "user@mail.com";
   const router = useRouter();
-  console.log(session)
-
-  const logoutHandler = () => {
-    signOut();
+  console.log(session);
+  const logoutHandler = async () => {
+    await client.api.user.logout.$post()
     router.refresh();
   };
 

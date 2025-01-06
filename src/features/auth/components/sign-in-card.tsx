@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { FcGoogle } from "react-icons/fc";
 // import { FaGithub } from "react-icons/fa";
 import { DottedSeparator } from "@/components/DottedSeparator";
-import { signIn } from "next-auth/react";
+import type { signIn } from "@/lib/auth";
 import { useState } from "react";
 import { z } from "zod";
 import { loginSchema } from "../schema";
@@ -20,14 +20,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { toast } from "sonner";
+import { client } from "@/lib/rpc";
+import { useRouter } from "next/navigation";
 
 function SignInCard() {
-  // const loginWithGoogleHandler = () => {
-  //   signIn("google").catch(() => {
-  //     setDisabled(false);
-  //   });
-  //   setDisabled(true);
-  // };
+  const router = useRouter();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -39,16 +36,27 @@ function SignInCard() {
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setDisabled(true);
     try {
-      await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        redirect: true
-      });
+      const args: Parameters<typeof signIn> = [
+        "credentials",
+        {
+          email: values.email,
+          password: values.password,
+          redirect: false,
+        },
+      ];
+
+      const res = await client.api.user.login.$post({ json: args });
+      if (!res.ok) {
+        const message = await res.text();
+        throw new Error(message);
+      }
       toast.success("Logged In");
+      router.replace("/dashboard")
     } catch {
       toast.error("Incorrect username or password");
     } finally {
       setDisabled(false);
+      // router.refresh();
     }
   };
 

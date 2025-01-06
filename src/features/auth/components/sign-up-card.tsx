@@ -20,7 +20,7 @@ import { signUpSchema } from "../schema";
 import { useState } from "react";
 import { toast } from "sonner";
 import { client } from "@/lib/rpc";
-import { signIn } from "next-auth/react";
+import { signIn } from "@/lib/auth";
 
 function SignUpCard() {
   const form = useForm<z.infer<typeof signUpSchema>>({

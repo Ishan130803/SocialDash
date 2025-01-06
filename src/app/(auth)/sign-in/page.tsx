@@ -1,9 +1,10 @@
 import { SignInCard } from "@/features/auth/components/sign-in-card";
-import { getServerSession } from "next-auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 async function SignInPage() {
-  const session = await getServerSession();
+  const session = await auth()
+  console.log(session)
   if (session) {
     redirect("/dashboard");
   }
