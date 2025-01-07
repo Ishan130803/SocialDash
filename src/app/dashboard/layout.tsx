@@ -9,7 +9,7 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col h-screen min-h-screen bg-background">
       <Header />
       <div className="flex flex-grow w-full">
-        <div className="hidden lg:contents">
+        <div className="hidden lg:contents"> 
           <DashboardSidebar />
         </div>
         <main className="w-full h-full">{children}</main>

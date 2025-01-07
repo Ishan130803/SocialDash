@@ -42,5 +42,25 @@ const createdUserSchema = new mongoose.Schema(
   }
 );
 
+createdUserSchema.searchIndex({
+  name: "fuzzy-search-index",
+  definition: {
+    mappings: {
+      dynamic: false,
+      fields: {
+        name: {
+          type: "string",
+        },
+        email: {
+          type: "string",
+        },
+      },
+    },
+  },
+});
+
 // Create the model
-export const CreatedUser = mongoose.models?.CreatedUser || mongoose.model('CreatedUser', createdUserSchema);
+export const CreatedUser =
+  mongoose.models?.CreatedUser ||
+  mongoose.model("CreatedUser", createdUserSchema);
+
