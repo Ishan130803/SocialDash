@@ -9,54 +9,90 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { client } from "@/lib/rpc";
+import { UserAvatar } from "@/components/user-avatar";
 
 // Sample data for each tab
-const tabData = [
+
+type tabSchema = {
+  id: string;
+  title: string;
+  description: string;
+  items: {
+    _id: string;
+    name: string;
+    email: string;
+    image: string;
+  }[];
+};
+const tabData: tabSchema[] = [
   {
     id: "tab1",
-    title: "Tab 1",
+    title: "Friends",
     description: "Content for Tab 1",
-    items: [
-      { id: 1, name: "Item 1", description: "Description for Item 1" },
-      { id: 2, name: "Item 2", description: "Description for Item 2" },
-      { id: 3, name: "Item 3", description: "Description for Item 3" },
-      { id: 1, name: "Item 1", description: "Description for Item 1" },
-      { id: 2, name: "Item 2", description: "Description for Item 2" },
-      { id: 3, name: "Item 3", description: "Description for Item 3" },
-      { id: 1, name: "Item 1", description: "Description for Item 1" },
-      { id: 2, name: "Item 2", description: "Description for Item 2" },
-      { id: 3, name: "Item 3", description: "Description for Item 3" },
-    ],
+    items: [],
   },
   {
     id: "tab2",
-    title: "Tab 2",
+    title: "Sent Requests",
     description: "Content for Tab 2",
-    items: [
-      { id: 4, name: "Item 4", description: "Description for Item 4" },
-      { id: 5, name: "Item 5", description: "Description for Item 5" },
-      { id: 6, name: "Item 6", description: "Description for Item 6" },
-    ],
+    items: [],
   },
   {
     id: "tab3",
-    title: "Tab 3",
+    title: "Incoming Requests",
     description: "Content for Tab 3",
-    items: [
-      { id: 7, name: "Item 7", description: "Description for Item 7" },
-      { id: 8, name: "Item 8", description: "Description for Item 8" },
-      { id: 9, name: "Item 9", description: "Description for Item 9" },
-    ],
+    items: [],
   },
 ];
 
 export function TabledPreview() {
   const [activeTab, setActiveTab] = React.useState(tabData[0].id);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedItem, setSelectedItem] = React.useState(tabData[0].items[0]);
+  tabData[0].items =
+    useQuery({
+      queryKey: ["user_friends"],
+      queryFn: async () => {
+        const res = await client.api.friends["get-friends"].$get();
+        if (!res.ok) {
+          throw Error("Failed to fetch user_friends");
+        }
+        const data = await res.json();
+        return data;
+      },
+    }).data ?? [];
+
+  tabData[2].items =
+    useQuery({
+      queryKey: ["user_pending_requests"],
+      queryFn: async () => {
+        const res = await client.api.friends["get-pending"].$get();
+        if (!res.ok) {
+          throw Error("Failed to fetch user_pending_requests");
+        }
+        const data = await res.json();
+        return data;
+      },
+    }).data ?? [];
+
+  tabData[1].items =
+    useQuery({
+      queryKey: ["user_sent_request"],
+      queryFn: async () => {
+        const res = await client.api.friends["get-sent"].$get();
+        if (!res.ok) {
+          throw Error("Failed to fetch user_pending_requests");
+        }
+        const data = await res.json();
+        return data;
+      },
+    }).data ?? [];
+
   return (
     <div className="p-4 w-full h-full flex flex-col lg:flex-row-reverse gap-4">
-      <Preview className="hidden w-full md:block h-1/2" item={selectedItem} />
+      {/* <Preview className="hidden w-full md:block h-1/2" item={selectedItem} /> */}
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
@@ -80,11 +116,21 @@ export function TabledPreview() {
                 <ul className="space-y-2">
                   {tab.items.map((item) => (
                     <li
-                      key={item.id}
-                      className="cursor-pointer rounded p-2 hover:bg-accent"
+                      key={item._id}
+                      className="cursor-pointer rounded p-2 hover:bg-accent flex items-center gap-2"
                       onClick={() => setSelectedItem(item)}
                     >
-                      {item.name}
+                      <UserAvatar
+                        _email={item.email}
+                        _image={item.image}
+                        _name={item.name}
+                      />
+                      <div className="flex flex-col justify-center">
+                        <span className="font-medium">{item.name}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {item.email}
+                        </span>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -97,22 +143,22 @@ export function TabledPreview() {
   );
 }
 
-function Preview({
-  item,
-  className,
-}: {
-  item: { name: string; description: string };
-  className?: string;
-}) {
-  return (
-    <Card className={cn("hidden md:block", className)}>
-      <CardHeader>
-        <CardTitle>Preview</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <h3 className="text-lg font-semibold">{item.name}</h3>
-        <p className="text-sm text-muted-foreground">{item.description}</p>
-      </CardContent>
-    </Card>
-  );
-}
+// function Preview({
+//   item,
+//   className,
+// }: {
+//   item: { name: string; description: string };
+//   className?: string;
+// }) {
+//   return (
+//     <Card className={cn("hidden md:block", className)}>
+//       <CardHeader>
+//         <CardTitle>Preview</CardTitle>
+//       </CardHeader>
+//       <CardContent>
+//         <h3 className="text-lg font-semibold">{item.name}</h3>
+//         <p className="text-sm text-muted-foreground">{item.description}</p>
+//       </CardContent>
+//     </Card>
+//   );
+// }

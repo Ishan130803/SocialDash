@@ -1,5 +1,9 @@
 import "server-only";
-import { getAllUsers, getUserData } from "@/features/api/actions";
+import {
+  getAllUsers,
+  getUserData,
+  getUserDataWithProjections,
+} from "@/features/api/actions";
 // import { sessionMiddleware } from "@/features/auth/api/route";
 import { Hono } from "hono";
 import { sessionMiddleware } from "@/features/auth/api/session-middleware";
@@ -86,7 +90,7 @@ const app = new Hono()
     //     },
     //   },
     // ]);
-    console.log("query",c.req.query());
+    console.log("query", c.req.query());
 
     const user_data = (await getUserData(user_id)).data;
     if (!user_data || (search_only && query_string.length === 0)) {
@@ -205,6 +209,57 @@ const app = new Hono()
     }
 
     return c.json(recommendations);
+  })
+  .get("search", sessionMiddleware, async (c) => {
+    const query_string = c.req.query("q") ?? "";
+    let parsed_limit = parseInt(c.req.query("limit") ?? "");
+    parsed_limit = isNaN(parsed_limit) ? 10 : parsed_limit;
+
+    if (query_string.length === 0) {
+      return c.json([]);
+    }
+    const user_id = c.get("user_id");
+    const friend_ids = (
+      await getUserDataWithProjections(user_id, {
+        _id: 0,
+        friends: 1,
+      })
+    ).friends as (typeof ObjectId)[];
+
+    const searchResults = (await CreatedUser.aggregate([
+      {
+        $search: {
+          index: "fuzzy-search-index",
+          text: {
+            query: query_string,
+            path: ["name", "email"],
+            fuzzy: {},
+          },
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          image: 1,
+        },
+      },
+      {
+        $match: {
+          _id: { $nin: friend_ids },
+        },
+      },
+      {
+        $limit: parsed_limit,
+      },
+    ])) as {
+      _id: string;
+      name: string;
+      email: string;
+      image: string;
+    }[];
+
+    return c.json(searchResults);
   });
 
 export default app;

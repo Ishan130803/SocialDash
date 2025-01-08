@@ -1,5 +1,7 @@
 import { connectToDatabase } from "@/lib/mongoose-client";
 import { CreatedUser } from "@/models/user-model";
+import mongoose from "mongoose";
+const ObjectId = mongoose.Types.ObjectId;
 
 export async function acceptFriendRequest(userId: string, friendId: string) {
   try {
@@ -219,10 +221,10 @@ export async function getAllUsers() {
   try {
     await connectToDatabase();
 
-    const data = (await CreatedUser.find(
+    const data = await CreatedUser.find(
       {},
       { _id: 1, name: 1, email: 1, image: 1 }
-    ))
+    );
     return { message: "Found users", data: data, status: 201 };
   } catch (error) {
     return { message: (error as Error).message, status: 500 };
@@ -254,5 +256,49 @@ export async function cancelFriendRequest(user_id: string, friend_id: string) {
     },
   ]);
 
-  return result
+  return result;
+}
+
+export async function getFriendIds(user_id: string) {
+  const user_id_object =
+    typeof user_id === "string"
+      ? mongoose.Types.ObjectId.createFromHexString(user_id)
+      : user_id;
+  const result = await CreatedUser.findOne(
+    {
+      _id: user_id_object,
+    },
+    {
+      friends: 1,
+    }
+  );
+
+  return result.friends;
+}
+
+export async function bulkGetDataWithProjection(
+  user_ids: string[],
+  projection: Record<string, number>
+) {
+  const sanitized_user_ids = user_ids.map((item) => {
+    if (typeof item === "string") {
+      return ObjectId.createFromHexString(item);
+    } else {
+      return item;
+    }
+  });
+  const data = await CreatedUser.find(
+    { _id: { $in: sanitized_user_ids } },
+    projection
+  );
+  return data;
+}
+
+export async function getUserDataWithProjections(
+  user_id: string,
+  projection: Record<string, number> = {}
+) {
+  const user_id_object = ObjectId.createFromHexString(user_id);
+  const user_data = await CreatedUser.findById(user_id_object, projection);
+  return user_data;
 }
