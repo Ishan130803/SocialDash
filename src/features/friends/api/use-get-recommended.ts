@@ -3,16 +3,22 @@ import { client } from "@/lib/rpc";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 
-function useGetRecommended() {
+function useGetRecommended(
+  query_id : string,
+  query_params : Record<string, any>
+) {
   const session = useSession();
+
   const query = useQuery({
-    queryKey: ["recommended"],
+    queryKey: [query_id],
 
     queryFn: async () => {
       if (!session || session.status !== "authenticated") {
         throw Error("Session not present");
       }
-      const response = await client.api.data["get-all"].$get();
+      const response = await client.api.data["get-recommendations"].$get({
+        query: query_params,
+      });
       if (!response.ok) {
         throw Error(await response.text());
       }
@@ -22,7 +28,6 @@ function useGetRecommended() {
         email: string;
         image: string;
       }[];
-
 
       const res = await client.api.user.current.$get();
       if (!res.ok) {

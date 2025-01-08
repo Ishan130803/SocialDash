@@ -61,7 +61,7 @@ const SendRequestButton = ({ friend_id }: { friend_id: string }) => {
     await client.api.friends["send-friend-request"].$post({
       query: { friend_id: friend_id },
     });
-    queryClient.invalidateQueries({ queryKey: ["recommended"] });
+    queryClient.invalidateQueries({ queryKey: ["general_recommendations"] });
   };
   return (
     <Button
@@ -81,7 +81,7 @@ const CancelRequestButton = ({ friend_id }: { friend_id: string }) => {
     await client.api.friends["cancel-friend-request"].$post({
       query: { friend_id: friend_id },
     });
-    queryClient.invalidateQueries({ queryKey: ["recommended"] });
+    queryClient.invalidateQueries({ queryKey: ["general_recommendations"] });
   };
   return (
     <Button
@@ -101,7 +101,7 @@ const AlreadyFriendsButton = ({ friend_id }: { friend_id: string }) => {
     await client.api.friends["un-friend-request"].$post({
       query: { friend_id },
     });
-    queryClient.invalidateQueries({ queryKey: ["recommended"] });
+    queryClient.invalidateQueries({ queryKey: ["general_recommendations"] });
   };
   return (
     <Button
@@ -120,7 +120,7 @@ const AcceptRequestButton = ({ friend_id }: { friend_id: string }) => {
     await client.api.friends["accept-friend-request"].$post({
       query: { friend_id },
     });
-    queryClient.invalidateQueries({ queryKey: ["recommended"] });
+    queryClient.invalidateQueries({ queryKey: ["general_recommendations"] });
   };
   return (
     <Button

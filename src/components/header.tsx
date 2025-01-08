@@ -1,18 +1,18 @@
 import { Bell, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { UserButton } from "@/features/auth/components/user-button";
 import { MobileSidebar } from "./mobile-sidebar";
+import { UserSearch } from "./user-search";
 
 export function Header() {
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-background border-b">
+    <header className="min-w-0 flex items-center justify-between px-6 py-4 bg-background border-b">
       <div className="flex items-center space-x-4">
         <div className="contents lg:hidden">
           <MobileSidebar />
         </div>
         <h1 className="text-2xl font-bold">SocialDash</h1>
-        <Input className="w-64" placeholder="Search..." type="search" />
+        <UserSearch className="w-64" placeholder="Searh..." type="search" />
       </div>
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon">

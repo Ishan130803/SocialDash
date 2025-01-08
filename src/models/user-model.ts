@@ -21,15 +21,15 @@ const createdUserSchema = new mongoose.Schema(
       trim: true,
     },
     friends: {
-      type: [String],
+      type: [mongoose.Types.ObjectId],
       default: [],
     },
     pending_requests: {
-      type: [String],
+      type: [mongoose.Types.ObjectId],
       default: [],
     },
     sent_requests: {
-      type: [String],
+      type: [mongoose.Types.ObjectId],
       default: [],
     },
     image: {

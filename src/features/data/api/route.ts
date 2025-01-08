@@ -17,7 +17,10 @@ const app = new Hono()
     let parsed_limit = parseInt(c.req.query("limit") ?? "");
     parsed_limit = isNaN(parsed_limit) ? 10 : parsed_limit;
     const query_string = c.req.query("q") ?? "";
+    const mutuals_only = (c.req.query("mutuals_only") ?? "") === "true";
+    const search_only = (c.req.query("search_only") ?? "") === "true";
     await connectToDatabase();
+
     // const recommendations = await CreatedUser.aggregate([
     //   // Step 1: Match the current user to get their friends
     //   { $match: { _id: user_id } },
@@ -83,26 +86,23 @@ const app = new Hono()
     //     },
     //   },
     // ]);
+    console.log("query",c.req.query());
 
     const user_data = (await getUserData(user_id)).data;
-    if (!user_data) {
+    if (!user_data || (search_only && query_string.length === 0)) {
       return c.json([]);
     }
 
-    const user_friends = user_data.friends.map((item) =>
-      ObjectId.createFromHexString(item)
-    );
+    const user_friends = user_data.friends;
 
     const friendsOfFriends = await CreatedUser.find({
       _id: { $in: user_friends }, // Only look at the current user's friends
     })
       .select("friends")
-      .then((friends: { friends: string[] }[]) => {
+      .then((friends: { friends: ObjectId[] }[]) => {
         // Collect all friends of friends
         return friends.reduce((acc: ObjectId[], friend) => {
-          acc.push(
-            ...friend.friends.map((item) => ObjectId.createFromHexString(item))
-          );
+          acc.push(...friend.friends);
           return acc;
         }, []);
       });
@@ -159,7 +159,7 @@ const app = new Hono()
 
     const remaining_length = parsed_limit - mutual_length;
 
-    if (remaining_length > 0) {
+    if (remaining_length > 0 && !mutuals_only) {
       const recommended_ids = recommendations.map((item) => item._id);
 
       console.log(recommended_ids);
@@ -167,7 +167,13 @@ const app = new Hono()
       const remaining_pipeline: PipelineStage[] = [
         {
           $match: {
-            _id: { $nin: [...recommended_ids, ...user_friends, ObjectId.createFromHexString(user_id)] },
+            _id: {
+              $nin: [
+                ...recommended_ids,
+                ...user_friends,
+                ObjectId.createFromHexString(user_id),
+              ],
+            },
           },
         },
         {
