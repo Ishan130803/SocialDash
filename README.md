@@ -1,4 +1,4 @@
-> [!NOTE]
+> [!WARNING]
 > This Project is still work in progress so, things may not work as intended
 
 ### About the project
