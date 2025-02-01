@@ -1,10 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { FcGoogle } from "react-icons/fc";
-// import { FaGithub } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 import { DottedSeparator } from "@/components/DottedSeparator";
-import type { signIn } from "@/lib/auth";
 import { useState } from "react";
 import { z } from "zod";
 import { loginSchema } from "../schema";
@@ -22,6 +21,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { client } from "@/lib/rpc";
 import { useRouter } from "next/navigation";
+import { nextAuthSignInAPI } from "../actions";
+import { type signIn } from "@/lib/auth";
 
 function SignInCard() {
   const router = useRouter();
@@ -61,6 +62,14 @@ function SignInCard() {
   };
 
   const [disabled, setDisabled] = useState(false);
+
+
+  const loginWithGoogleHandler = async () => {
+    setDisabled(true)
+    await nextAuthSignInAPI('google')
+    setDisabled(false)
+
+  }
   return (
     <Card className="w-full h-full md:w-[487px] border-none shadow-none">
       <CardHeader className="flex items-center justify-center text-center p-7">
@@ -118,7 +127,7 @@ function SignInCard() {
       <div className="px-7">
         <DottedSeparator />
       </div>
-      {/* <CardContent className="p-7 flex flex-col gap-y-4">
+      <CardContent className="p-7 flex flex-col gap-y-4">
         <Button
           variant={"secondary"}
           size={"lg"}
@@ -141,7 +150,7 @@ function SignInCard() {
       </CardContent>
       <div className="px-7">
         <DottedSeparator />
-      </div> */}
+      </div>
       <div className="p-7  flex items-center justify-center">
         <p>
           Don&apos;t have an account?
